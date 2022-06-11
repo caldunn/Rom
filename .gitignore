@@ -1,0 +1,6 @@
+# Project exclude paths
+/Rom/project/project/target/
+/Rom/project/target/
+/Rom/project/target/idea-classes/
+/Rom/target/
+/Rom/target/scala-3.1.2/classes/
