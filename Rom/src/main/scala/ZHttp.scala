@@ -1,4 +1,3 @@
-import io.circe.generic.auto.*
 import sttp.tapir.PublicEndpoint
 import sttp.tapir.generic.auto.*
 import sttp.tapir.json.circe.*
@@ -7,12 +6,15 @@ import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import sttp.tapir.ztapir.*
 import zhttp.http.HttpApp
 import zhttp.service.Server
-import zio.{ExitCode, Task, URIO, ZIO, ZIOAppDefault}
+import zio.{ExitCode, Task, URIO, ZIO, ZIOAppDefault, ZLayer}
+import zio.logging.*
+import scala.language.postfixOps
 import java.io.IOException
 import ServiceTypeDefs.*
+import sttp.client3.httpclient.zio.HttpClientZioBackend
+import restmodels.Pets.*
 
 object ZHttp extends ZIOAppDefault {
-  case class Pet(species: String, url: String)
 
   val petEndpoint: PublicEndpoint[Int, String, Pet, Any] =
     endpoint
@@ -33,7 +35,7 @@ object ZHttp extends ZIOAppDefault {
         .tap(p =>
           ZIO
             .attemptBlockingInterrupt(
-              "echo \"GigaChad has been spotted! Sound the Alarm!! Roh Roh Raggy\"".#|("espeak").!
+              "echo \"GigaChad has been spotted! Sound the Alarm!! Roh Roh Raggy. lulw\"".#|("espeak").!
             )
             .forkDaemon // Fork this ;)
         )
@@ -81,22 +83,24 @@ object ZHttp extends ZIOAppDefault {
     Server
       .start(8080, routes)
 
-  val endOfWorld: ZIO[AllServices, Any, Nothing] =
-    bootStrap *> HashMe.checkForSecret.tapError(x => ZIO.logError(x.msg)) *> server
-
   import sttp.client3.httpclient.zio.HttpClientZioBackend
   import sttp.client3.*
-  //  val request = HttpClientZioBackend().flatMap { backend =>
-  //    backend.send()
-  //  }
-  val backend = HttpClientSyncBackend()
-  val response = basicRequest
-    .body("Hello World!!")
-    .get(uri"http://localhost:8090/api/v1")
-    .send(backend)
+  val request: Task[Response[Either[String, String]]] = HttpClientZioBackend().flatMap {
+    (backend: SttpBackend[Task, Any]) =>
+      basicRequest
+        .body("Hello World!")
+        .get(uri"http://localhost:8090/api/v111")
+        .send(backend)
+  }
+  val endOfWorld: ZIO[AllServices, Any, Nothing] =
+    /*request *> */ HashMe.checkForSecret.tapError(x => ZIO.logError(x.msg)) *> server
 
-  println(response.body.isRight)
-
+  override val bootstrap: ZLayer[Any, Any, Any] = backend
+    .SLF4J
+    .slf4j(
+      logLevel = zio.LogLevel.Info,
+      format = LogFormat.colored
+    )
   override def run: ZIO[Any, Any, Any] =
     endOfWorld
       .provideSome(FirstServiceLive.layer, SecondServiceLive.layer)

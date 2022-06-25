@@ -1,6 +1,9 @@
 # Project exclude paths
-/Rom/project/project/target/
-/Rom/project/target/
-/Rom/project/target/idea-classes/
-/Rom/target/
-/Rom/target/scala-3.1.2/classes/
+# Building things.
+target/
+.metals/
+.bsp/
+.bloop/
+# IDE Specific
+.idea/
+.vscode/

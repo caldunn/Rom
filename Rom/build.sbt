@@ -3,10 +3,12 @@ ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "com.pushme"
 ThisBuild / organizationName := "PushMe"
 
-val ZioVersion    = "2.0.0-RC6"
-val Http4sVersion = "0.23.12"
-val CirceVersion  = "0.14.2"
-val TapirVersion  = "1.0.0-RC3"
+val ZioVersion      = "2.0.0-RC6"
+val ZioLogging      = "2.0.0-RC10"
+val Http4sVersion   = "0.23.12"
+val CirceVersion    = "0.14.2"
+val TapirVersion    = "1.0.0-RC3"
+val postgresVersion = "42.3.6"
 
 lazy val ZHttp = (project in file("."))
   .settings(
@@ -16,15 +18,17 @@ lazy val ZHttp = (project in file("."))
     libraryDependencies ++= Seq(
       "dev.zio"       %% "zio"                 % ZioVersion,
       "dev.zio"       %% "zio-test"            % ZioVersion % Test,
-      "org.postgresql" % "postgresql"          % "42.3.4",
+      "org.postgresql" % "postgresql"          % postgresVersion,
       "org.http4s"    %% "http4s-blaze-client" % Http4sVersion,
       "org.http4s"    %% "http4s-blaze-server" % Http4sVersion,
       "org.http4s"    %% "http4s-circe"        % Http4sVersion,
       "org.http4s"    %% "http4s-dsl"          % Http4sVersion,
       "io.circe"      %% "circe-generic"       % CirceVersion,
       "dev.zio"       %% "zio-interop-cats"    % "3.3.0-RC7",
+      "dev.zio"       %% "zio-logging"         % ZioLogging,
+      "dev.zio"       %% "zio-logging-slf4j"   % ZioLogging,
 
-      // Tapir. Typed REST seems pree kewl.
+// Tapir. Typed REST seems pree kewl.
       "com.softwaremill.sttp.tapir"   %% "tapir-http4s-server-zio" % TapirVersion,
       "com.softwaremill.sttp.tapir"   %% "tapir-zio-http-server"   % TapirVersion,
       "com.softwaremill.sttp.tapir"   %% "tapir-core"              % TapirVersion,
